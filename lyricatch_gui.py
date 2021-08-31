@@ -56,7 +56,7 @@ class App(tk.Tk):
         # separator.pack(fill='x')
 
         #Initiate lyrics text box
-        self.lyric_box = scrolledtext.ScrolledText(self, height=45,font=("Helvetica", 10))
+        self.lyric_box = scrolledtext.ScrolledText(self, height=45,font=("Helvetica", 15))
         self.lyric_box.grid(columnspan=3, row=3,sticky=tk.S)
 
 
@@ -108,7 +108,11 @@ class Lyrics:
 
     def getLyrics(self):
         #artist, song = self.getSong()
-        artist, song = grabNowPlayingOSX()
+        if(sys.platform == 'darwin'):
+            artist, song = grabNowPlayingOSX()
+        else:
+            artist, song = self.getSong()
+
         genius_access_token = os.environ.get("GENIUS_API")
         genius = lyricsgenius.Genius(genius_access_token)
         req_song =genius.search_song(title=song, artist=artist, song_id=None, get_full_info=True)
