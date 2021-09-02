@@ -1,6 +1,6 @@
 # LyriCatch
 
-Cross Platform application to view and download lyrics of the song that's currently being played. It supports ANY Music Player connted to Last.fm and Spotify (natively) for now.
+Cross Platform desktop application to view and download lyrics of the song that's currently being played. It supports ANY Music Player connted to Last.fm and Spotify (natively) for now.
 
 ## Requiremnts
 
@@ -10,10 +10,8 @@ GUI is made using python-tkinter, if building using macOS on a python3 installat
 brew install python-tk@3.9
 ```
 
-Other than that, installing `requirements.txt` via pip would suffice, as for `.env` file in local machine, use this format:
+Then install the requirements via pip (or pip3), after that, rename `.env.example` to `.env` and put your API keys there.
 
-```bash
-LASTFM_API = "API_KEY_HERE"
-LASTFM_USER = "USERNAME_HERE"
-GENIUS_API = "ACCESS_TOKEN_HERE"
-```
+## Screenshots
+
+![LyriCatch Screenshot macOS](https://i.imgur.com/dmsBEAf.png)

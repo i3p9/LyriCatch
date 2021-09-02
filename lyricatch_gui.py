@@ -15,7 +15,6 @@ from getNowPlayingInfo import grabNowPlayingOSX
 
 # Fix windows HiDPI blurry mess
 def hidpiDetection():
-    import os
     if os.name == "nt":
         from ctypes import windll, pointer, wintypes
         windll.shcore.SetProcessDpiAwareness(1)
@@ -26,9 +25,16 @@ class App(tk.Tk):
         super().__init__()
         self.Draw()
     def Draw(self):
-        self.title('Spotify Lyrics')
+        self.title('LyriCatch')
         self.geometry('500x600+50+50')
-        self.iconbitmap('./icon.ico')
+
+        if(sys.platform == 'darwin'):
+            iconFile = 'assets/icon_mac.icns'
+
+        elif(sys.platform == 'win32'):
+            iconFile = '/assets/icon_win.ico'
+
+        self.iconbitmap(iconFile)
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
@@ -81,7 +87,7 @@ class App(tk.Tk):
         successfulDialog.pack(fill='both', padx=10, pady=10, ipadx=5)
 
     def configApp(self):
-        echo ("Under construction")
+        print("Under construction")
 
 
 class Lyrics:
