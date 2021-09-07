@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, Tk, Text, scrolledtext, Label, filedialog, font, Frame
+from tkinter import Button, Entry, Toplevel, ttk, Tk, Text, scrolledtext, Label, filedialog, messagebox, font, Frame
 from tkinter.messagebox import showinfo
 import tkinter.scrolledtext as scrolledtext
 from time import sleep
@@ -11,6 +11,7 @@ from pprint import pprint
 import sys
 import codecs
 import lyricsgenius
+from pathlib import Path
 from getNowPlayingInfo import grabNowPlayingOSX
 
 # Fix windows HiDPI blurry mess
@@ -67,6 +68,8 @@ class App(tk.Tk):
 
 
     def drawLyrics(self):
+        f = open("config.txt")
+
         #Gets lyrics, artist and title info to show
         artist, song, lyric_text = backend.getLyrics()
         self.lyrics_file = lyric_text
@@ -87,14 +90,76 @@ class App(tk.Tk):
         successfulDialog.pack(fill='both', padx=10, pady=10, ipadx=5)
 
     def configApp(self):
-        print("Under construction")
+        self.configWindow = Toplevel(self)
+        self.configWindow.title("configure")
+        self.configWindow.geometry("500x200")
+        self.configWindow.columnconfigure(0,weight=1)
+        self.configWindow.columnconfigure(1,weight=3)
+
+
+        geniusAPILabel = Label(self.configWindow, text="Enter Genius access token")
+        geniusAPILabel.grid(column=0,row=0,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+
+        # LastfmUsernameLabel = Label(self.configWindow, text="Enter Last.fm username")
+        # LastfmUsernameLabel.grid(column=0,row=1,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+
+        # LastfmAPILabel = Label(self.configWindow, text="Enter Last.fm access token")
+        # LastfmAPILabel.grid(column=0,row=2,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+
+
+        self.geniusAPITextBox = Text(self.configWindow, width=30,height=1)
+        # self.LastfmUsernameTextBox = Text(self.configWindow, width=30,height=1)
+        # self.LastfmAPITextBox = Text(self.configWindow, width=30,height=1)
+
+        savetokenButton = ttk.Button(self.configWindow,text="save",command=lambda: self.saveToken())
+        savetokenButton.grid(column=1,row=4,sticky=tk.N, padx=3, pady=5,ipadx=0,ipady=0)
+
+        # WIP for saving multiple options
+        # with open('config.txt', 'r') as file:
+        #     configdata = file.readlines()
+
+        # #configfile = open("config.txt")
+        # self.geniusAPITextBox.insert(1.0,configdata[0])
+        # self.LastfmUsernameTextBox.insert(1.0,configdata[1])
+        # self.LastfmAPITextBox.insert(1.0,configdata[2])
+        # file.close()
+
+        geniusAPIFromFile = Path('config.txt').read_text()
+        geniusAPIFromFile = geniusAPIFromFile.replace('\n', '')
+        self.geniusAPITextBox.insert(1.0,geniusAPIFromFile)
+
+
+        self.geniusAPITextBox.grid(column=1,row=0,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+        # self.LastfmUsernameTextBox.grid(column=1,row=1,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+        # self.LastfmAPITextBox.grid(column=1,row=2,sticky=tk.W, padx=3, pady=5,ipadx=0,ipady=0)
+
+    def saveToken(self):
+        f = open("config.txt",'w')
+        f.write(self.geniusAPITextBox.get(1.0, 'end'))
+        print('should be saved.....')
+        f.close()
+        tk.messagebox.showinfo('FYI','Token saved to file successfully')
+
+    # def for saving multiple files, WIP
+    # def saveToken(self):
+    #     self.replace_line('config.txt', 0, self.geniusAPITextBox.get(1.0, 'end'))
+    #     self.replace_line('config.txt', 1, self.LastfmUsernameTextBox.get(1.0, 'end'))
+    #     self.replace_line('config.txt', 2, self.LastfmAPITextBox.get(1.0, 'end'))
+    #     tk.messagebox.showinfo('FYI','Token saved to file successfully')
+
+    def replace_line(self,file_name, line_num, text):
+        lines = open(file_name, 'r').readlines()
+        lines[line_num] = text
+        out = open(file_name, 'w')
+        out.writelines(lines)
+        out.close()
 
 
 class Lyrics:
     def __init__(self):
         super().__init__()
     def getSong(self):
-        #Set API endpoints and hardcode username and access_token from Last.fm
+        #Set API endpoints and get username and access_token of Last.fm from env
         base_url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='
         user = os.environ.get("LASTFM_USER")
         key = os.environ.get("LASTFM_API")
@@ -119,18 +184,18 @@ class Lyrics:
         else:
             artist, song = self.getSong()
 
-        genius_access_token = os.environ.get("GENIUS_API")
-        genius = lyricsgenius.Genius(genius_access_token)
+        # get token from env
+        #genius_access_token = os.environ.get("GENIUS_API")
+        # get token from config.txt
+        genius_access_token_txt = Path('config.txt').read_text()
+        genius_access_token_txt = genius_access_token_txt.replace('\n', '')
+        print(genius_access_token_txt)
+        genius = lyricsgenius.Genius(genius_access_token_txt)
         req_song =genius.search_song(title=song, artist=artist, song_id=None, get_full_info=True)
         lyrics = str(req_song.lyrics)
         print(artist)
         print(song)
         return artist, song, lyrics
-
-    def saveLyrics(self,lyrics):
-        text_file = open("out.txt", "w")
-        text_file.write(lyrics)
-        text_file.close()
 
 
 if __name__ == "__main__":
@@ -139,23 +204,3 @@ if __name__ == "__main__":
     backend = Lyrics()
     app = App()
     app.mainloop()
-
-
-
-
-
-## TO DO ACCESS TOKEN
-# access_token = tk.StringVar()
-
-# get_token = ttk.Frame(root)
-# get_token.pack(padx=10, pady=10, fill='x', expand=True)
-
-# token_label = ttk.Label(get_token, text="Access Token:")
-# token_label.pack(fill='x', expand=True)
-
-# token_entry = ttk.Entry(get_token, textvariable=access_token)
-# token_entry.pack(fill='x', expand=True)
-# token_entry.focus()
-
-# token_submit_button = ttk.Button(get_token, text="Submit", command=access_token_clicked)
-# token_submit_button.pack(fill='x', expand=True, pady=10)
