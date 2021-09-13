@@ -1,1 +1,1 @@
-# Currently testing Windows App title grab
+#test done. next test album art and controlling playback

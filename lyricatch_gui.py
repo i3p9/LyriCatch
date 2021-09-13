@@ -9,10 +9,10 @@ import requests
 import json
 from pprint import pprint
 import sys
-import codecs
 import lyricsgenius
 from pathlib import Path
 from getNowPlayingInfo import grabNowPlayingOSX
+from getNowPlayingInfo import grabNowPlayingWindows
 
 # Fix windows HiDPI blurry mess
 def hidpiDetection():
@@ -33,7 +33,7 @@ class App(tk.Tk):
             iconFile = 'assets/icon_mac.icns'
 
         elif(sys.platform == 'win32'):
-            iconFile = '/assets/icon_win.ico'
+            iconFile = 'assets/icon_win.ico'
 
         self.iconbitmap(iconFile)
 
@@ -158,7 +158,8 @@ class App(tk.Tk):
 class Lyrics:
     def __init__(self):
         super().__init__()
-    def getSong(self):
+    def grabNowPlayingLastFM(self):
+        #Currently not being used. Will be implemented later on
         #Set API endpoints and get username and access_token of Last.fm from env
         base_url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user='
         user = os.environ.get("LASTFM_USER")
@@ -178,11 +179,10 @@ class Lyrics:
             return ('Nothing playing...')
 
     def getLyrics(self):
-        #artist, song = self.getSong()
         if(sys.platform == 'darwin'):
             artist, song = grabNowPlayingOSX()
-        else:
-            artist, song = self.getSong()
+        elif(os.name == "nt"):
+            artist,song = grabNowPlayingWindows()
 
         # get token from env
         #genius_access_token = os.environ.get("GENIUS_API")

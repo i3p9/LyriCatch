@@ -1,7 +1,5 @@
-from subprocess import Popen, PIPE
-
-
 def grabNowPlayingOSX():
+    from subprocess import Popen, PIPE
     app = "Terminal"
 
     getNowPlayingMac = '''
@@ -25,4 +23,26 @@ def grabNowPlayingOSX():
     return artist,song
 
 
-grabNowPlayingOSX()
+def grabNowPlayingWindows():
+    import win32gui
+    windows = []
+
+    windows.append(win32gui.GetWindowText(win32gui.FindWindow("SpotifyMainWindow", None)))
+
+    def find_spotify_uwp(hwnd, windows):
+        text = win32gui.GetWindowText(hwnd)
+        if win32gui.GetClassName(hwnd) == "Chrome_WidgetWin_0" and len(text) > 0:
+            windows.append(text)
+
+    win32gui.EnumWindows(find_spotify_uwp, windows)
+
+    while windows.count != 0:
+        try:
+            text = windows.pop()
+        except:
+            return "Error", "Nothing playing"
+        try:
+            artist, song = text.split(" - ",1)
+            return artist, song
+        except:
+            pass
