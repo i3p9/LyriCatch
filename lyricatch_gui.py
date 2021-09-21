@@ -13,6 +13,7 @@ import lyricsgenius
 from pathlib import Path
 from getNowPlayingInfo import grabNowPlayingOSX
 from getNowPlayingInfo import grabNowPlayingWindows
+from musicControlMac import TogglePlayPauseMac, NextTrackMac, PrevTrackMac
 
 # Fix windows HiDPI blurry mess
 def hidpiDetection():
@@ -40,6 +41,7 @@ class App(tk.Tk):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=5)
+        #self.columnconfigure(3, weight=1)
 
         #download_icon = tk.PhotoImage(file='./download.png')
         # Initating buttons
@@ -55,8 +57,19 @@ class App(tk.Tk):
         exitButton = ttk.Button(self, text='Exit',command=lambda: self.quit())
         exitButton.grid(column=1, row=0, sticky=tk.W, padx=3, pady=5)
 
+        # Playback Control
+        playpauseButton = ttk.Button(self, text='Play/Pause', compound=tk.RIGHT,command=self.togglePlayPause)
+        playpauseButton.grid(column=2, row=0, sticky=tk.E, padx=3, pady=5)
+
+        nextButton = ttk.Button(self, text='Next',command=self.toggleNext)
+        nextButton.grid(column=2, row=1, sticky=tk.E, padx=3, pady=5)
+
+        prevButton = ttk.Button(self, text='Previous',command=self.togglePrev)
+        prevButton.grid(column=2, row=2, sticky=tk.E, padx=3, pady=5)
+
+
         self.label = Label(self, text='Press Refresh to Look Up Lyrics')
-        self.label.grid(columnspan=3, row=2, sticky=tk.EW, padx=3, pady=5)
+        self.label.grid(columnspan=2, row=2, sticky=tk.EW, padx=3, pady=5)
 
         # Separator between buttons and lyrics text box
         # separator = ttk.Separator(self, orient='horizontal')
@@ -154,6 +167,41 @@ class App(tk.Tk):
         out.writelines(lines)
         out.close()
 
+    #PlaybackControl Functions
+
+    def togglePlayPause(self):
+        print("whatup")
+        if(sys.platform == 'darwin'):
+            print("what")
+            TogglePlayPauseMac()
+        elif(os.name == "nt"):
+            #TODO Windows Media Play/Pause
+            print("ya")
+
+    def toggleNext(self):
+        if(sys.platform == 'darwin'):
+            NextTrackMac()
+            artist, song = backend.getJustSongInfo()
+            song_info = "Now Playing: "+str(artist)+"- "+str(song)
+            # Update lyrics and NowPlaying text automatically
+            self.label.configure(text=song_info)
+            self.drawLyrics()
+        elif(os.name == "nt"):
+            #TODO Windows Media Next
+            print("ya")
+
+    def togglePrev(self):
+        if(sys.platform == 'darwin'):
+            PrevTrackMac()
+            artist, song = backend.getJustSongInfo()
+            song_info = "Now Playing: "+str(artist)+"- "+str(song)
+            # Update lyrics and NowPlaying text automatically
+            self.label.configure(text=song_info)
+            self.drawLyrics()
+        elif(os.name == "nt"):
+            #TODO Windows Media Prev
+            print("ya")
+
 
 class Lyrics:
     def __init__(self):
@@ -196,6 +244,14 @@ class Lyrics:
         print(artist)
         print(song)
         return artist, song, lyrics
+
+    def getJustSongInfo(self):
+        if(sys.platform == 'darwin'):
+            artist, song = grabNowPlayingOSX()
+        elif(os.name == "nt"):
+            artist,song = grabNowPlayingWindows()
+
+        return artist, song
 
 
 if __name__ == "__main__":
